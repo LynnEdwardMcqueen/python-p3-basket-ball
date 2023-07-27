@@ -182,3 +182,99 @@ def game_dict():
             ]
         }
     }
+
+def get_team_info(which_team):
+    return game_dict()[which_team]
+
+def get_team_players_info(which_team):
+    return get_team_info(which_team)["players"]
+
+def get_player_info(which_team, player_name, desired_stat ):
+    players_on_roster = get_team_players_info(which_team)
+
+    for player in players_on_roster:
+        if player["name"] == player_name:
+            if (desired_stat == "*"):
+                return player
+            else:
+                return player[desired_stat]
+    return None
+
+def get_player_stat(player, desired_stat):
+    return_stat = get_player_info("away", player, desired_stat)
+    if return_stat == None:
+        return_stat =  get_player_info("home", player, desired_stat)
+    return return_stat
+    
+def num_points_per_game(player):
+    points_per_game = get_player_stat(player, "points_per_game")
+    return points_per_game
+        
+def player_age(player):
+    age = get_player_stat(player, "age")
+    return age
+
+def get_team_stat(team_name, desired_stat):
+    away_team = get_team_info("away")
+    if away_team["team_name"] == team_name:
+        return away_team[desired_stat]
+    else:
+        return get_team_info("home")[desired_stat]
+
+
+def team_colors(team_name):
+    return get_team_stat(team_name, "colors")
+
+def team_names():
+    team_names = []
+    team_names.append(get_team_info("home")["team_name"])
+    team_names.append(get_team_info("away")["team_name"])
+    return team_names
+
+def player_numbers(team_name):
+    roster = get_team_stat(team_name, "players")
+    number_list = []
+    for player in roster:
+        number_list.append(player["number"])
+    return number_list
+
+def player_stats(name):
+    player_dictionary = get_player_stat(name, "*")
+    return player_dictionary
+
+def average_rebounds_by_shoe_brand( ):
+    teams = team_names()
+    brand_rebound_dictionary = {}
+
+    for team in teams:
+        roster = get_team_stat(team, "players")
+        for player in roster:
+
+            if player["shoe_brand"] not in brand_rebound_dictionary :
+                brand_rebound_dictionary[player["shoe_brand"]] = {"total_rebounds": player["rebounds_per_game"], "number_of_players": 1}
+            else:
+                brand_rebound_dictionary[player["shoe_brand"]]["total_rebounds"] += player["rebounds_per_game"]
+                brand_rebound_dictionary[player["shoe_brand"]]["number_of_players"] += 1
+
+    for brand in brand_rebound_dictionary:
+        disp_brand_string = brand + ":  "
+        avg_rebound_string = "%.2f" % ( brand_rebound_dictionary[brand]["total_rebounds"]/ brand_rebound_dictionary[brand]["number_of_players"])
+        disp_brand_string += avg_rebound_string
+        print(disp_brand_string)
+
+
+
+
+
+
+    
+# print("Num points per game ", num_points_per_game("Rui Hachimura"))
+# print("Num points per game ", num_points_per_game("Evan Mobley"))
+# print("Age ", player_age("Kentavious Caldwell-Pope"))
+# print("Colors of Cleveland ", team_colors("Cleveland Cavaliers"))
+# print("Colors of Washington", team_colors("Washington Wizards"))
+# print("Team Names ", team_names())
+# print("Cleveland Numbers ", player_numbers("Cleveland Cavaliers"))
+# print("player_stats ", player_stats("Kristaps Porzingis"))
+
+average_rebounds_by_shoe_brand()
